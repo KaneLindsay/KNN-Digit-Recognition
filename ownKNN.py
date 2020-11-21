@@ -2,26 +2,86 @@ from sklearn import datasets
 from sklearn.model_selection import train_test_split
 import numpy as np
 
-# Load the digit dataset
-digitDataset = datasets.load_digits()
 
-print(digitDataset.DESCR)
+def main(k_neighbors, dataset):
+    """
+    Predict a class for every test image and find the accuracy of the algorithm using k neighbours.
 
-# The pixel matrices must be reduced to a 64 feature vector to use them.
-digitDataset.images = digitDataset.images.reshape(digitDataset.images.shape[0],
-                                                  digitDataset.images.shape[1] * digitDataset.images.shape[2])
+    Parameters
+    ----------
+    k_neighbors : int
+        The number of neighbors to compare test images against
+    dataset : array_like
+        The dataset to work with
 
-# Split dataset into training images and labels - (x_train, y_train) and testing images and labels (x_test, y_test)
-x_train, x_test, y_train, y_test = train_test_split(digitDataset.images, digitDataset.target, test_size=0.25)
+    """
+    print(dataset.DESCR)
+
+    # The pixel matrices must be reduced to a 64 feature vector to use them.
+    dataset.images = dataset.images.reshape(dataset.images.shape[0],
+                                            dataset.images.shape[1] * dataset.images.shape[2])
+
+    # Split dataset into training images and labels - (x_train, y_train) and testing images and labels (x_test, y_test)
+    x_train, x_test, y_train, y_test = train_test_split(dataset.images, dataset.target, test_size=0.25)
+
+    total_correct = 0
+    i = 0
+    x_pruned, y_pruned = increment_grow(k_neighbors, x_train, y_train)
+    print("----------------------\nCLASSIFYING TEST DIGITS...")
+
+    for test_image in x_test:
+        prediction = predict(k_neighbors, x_pruned, y_pruned, test_image)
+
+        if prediction == y_test[i]:
+            total_correct += 1
+
+        i += 1
+
+    print("Correct classifications:", total_correct)
+    print("Incorrect classifications:", len(x_test) - total_correct)
+
+    accuracy = (round((total_correct / i), 2) * 100)
+    print(k_neighbors, "Nearest Neighbors is", accuracy, "% accurate.")
 
 
 # Euclidean distance finder
 def euclidean_distance(img_a, img_b):
-    # Finds the distance between 2 images: img_a, img_b
+    """
+    Finds the distance between 2 images: img_a, img_b
+
+    Parameters
+    ----------
+    img_a : array_like
+        First feature vector to compare
+    img_b : array_like
+        Second feature vector to compare
+
+    Returns
+    ---------
+    float
+        The euclidean distance between images a and b
+
+    """
+
     return sum((img_a - img_b) ** 2)
 
 
 def find_best_fit(labels):
+    """
+    Find the total number of each label and returns the most occurring label
+
+    Parameters
+    ----------
+    labels : array_like
+        The set of k-closest labels
+
+    Returns
+    -------
+    int
+        The predicted class given using the most often occurring label
+
+    """
+
     counts = np.zeros(10, dtype=int)
     best = 0
 
@@ -38,12 +98,33 @@ def find_best_fit(labels):
 
 
 def predict(k, train_images, train_labels, test_image):
-    # Create arrays for all point's euclidean distance from the test image and the closest points.
+    """
+    Predict the class of a test image based on training images and labels.
+
+    Parameters
+    ----------
+    k : int
+        The number of neighbors to compare the test image to
+    train_images : array_like
+        The array of training feature vectors
+    train_labels : array_like
+        The array of correct labels corresponding to training feature vectors
+    test_image : array_like
+        The feature vector to be classified
+
+    Returns
+    -------
+    int
+        The predicted label for the test image
+
+    """
+
     distances = []
     k_closest_labels = []
 
     for image in range(len(train_images)):
-        distances.append({'label': train_labels[image], 'distance': euclidean_distance(train_images[image], test_image)})
+        distances.append(
+            {'label': train_labels[image], 'distance': euclidean_distance(train_images[image], test_image)})
 
     # Sort the images by their euclidean distance from the test image.
     sorted_distances = sorted(distances, key=lambda k: k['distance'])
@@ -56,6 +137,25 @@ def predict(k, train_images, train_labels, test_image):
 
 
 def increment_grow(k, train_images, train_labels):
+    """
+    Reduce the size of the training data by using incremental growth
+
+    Parameters
+    ----------
+    k : int
+        The number of neighbors to compare
+    train_images : array_like
+        The set of feature vectors to train on
+    train_labels : array_like
+        The set of corresponding labels for the feature vectors
+
+    Returns
+    -------
+    array_like
+        The training dataset reached through incremental growth
+
+    """
+
     print("----------------------\nINCREMENTALLY GROWING LABELS...")
     # Edited instance-based learning: Incremental Growth
     pruned_images = [train_images[0]]
@@ -81,22 +181,4 @@ def increment_grow(k, train_images, train_labels):
     return pruned_images, pruned_labels
 
 
-k_neighbors = 7
-totalCorrect = 0
-i = 0
-x_pruned, y_pruned = increment_grow(k_neighbors, x_train, y_train)
-print("----------------------\nCLASSIFYING TEST DIGITS...")
-
-for test_image in x_test:
-    prediction = predict(k_neighbors, x_pruned, y_pruned, test_image)
-
-    if prediction == y_test[i]:
-        totalCorrect += 1
-
-    i += 1
-
-print("Correct classifications:", totalCorrect)
-print("Incorrect classifications:", len(x_test)-totalCorrect)
-accuracy = (round((totalCorrect / i), 2) * 100)
-
-print(k_neighbors, "Nearest Neighbors is", accuracy, "% accurate.")
+main(10, datasets.load_digits())

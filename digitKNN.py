@@ -27,3 +27,4 @@ classifier = KNeighborsClassifier(n_neighbors).fit(x_train, y_train)
 
 print("Accuracy of "+str(n_neighbors)+" nearest neighbors is")
 print(str(accuracy_score(y_test, classifier.predict(x_test))*100) + "%")
+
