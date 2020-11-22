@@ -17,12 +17,6 @@ def main(k_neighbors, dataset):
 
     """
 
-    # Show description of dataset
-    print(dataset.DESCR)
-    # View dimensions of data
-    print("Shape of image data", dataset.images.shape)
-    print("Shape of label data", dataset.target.shape)
-
     # Reduce 1*64 images to feature vectors.
     dataset.images = dataset.images.reshape(dataset.images.shape[0], dataset.images.shape[1] * dataset.images.shape[2])
 
@@ -31,8 +25,8 @@ def main(k_neighbors, dataset):
 
     classifier = KNeighborsClassifier(k_neighbors).fit(x_train, y_train)
 
-    print("Accuracy of "+str(k_neighbors)+" nearest neighbors is: ")
-    print(str(round(accuracy_score(y_test, classifier.predict(x_test))*100)) + "%")
+    accuracy = round(accuracy_score(y_test, classifier.predict(x_test))*100, 2)
 
+    print("Accuracy of "+str(k_neighbors)+" nearest neighbors is: ", str(accuracy) + "%")
 
-main(10, datasets.load_digits())
+    return accuracy

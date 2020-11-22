@@ -16,12 +16,6 @@ def main(k_neighbors, dataset):
 
     """
 
-    # Show description of dataset
-    print(dataset.DESCR)
-    # View dimensions of data
-    print(dataset.images.shape)
-    print(dataset.target.shape)
-
     # Reduce 1*64 images to feature vectors.
     dataset.images = dataset.images.reshape(dataset.images.shape[0], dataset.images.shape[1] * dataset.images.shape[2])
 
@@ -31,11 +25,20 @@ def main(k_neighbors, dataset):
     total_correct = 0
     errors = []
     i = 0
-    x_pruned, y_pruned = increment_grow(k_neighbors, x_train, y_train)
+
+    train_data = input("Train dataset with incremental growth? (Y/N):")
+
+    if train_data == "Y" or "y" or "yes" or "YES":
+        x_train, y_train = increment_grow(k_neighbors, x_train, y_train)
+    elif train_data == "N" or "n" or "no" or "NO":
+        pass
+    else:
+        print("Input was neither Y or N. Data will not be pruned.")
+
     print("----------------------\nCLASSIFYING TEST DIGITS...")
 
     for test_image in x_test:
-        prediction = predict(k_neighbors, x_pruned, y_pruned, test_image)
+        prediction = predict(k_neighbors, x_train, y_train, test_image)
 
         if prediction == y_test[i]:
             total_correct += 1
@@ -49,8 +52,9 @@ def main(k_neighbors, dataset):
     print("Incorrect classifications:", len(x_test) - total_correct)
     print(errors)
 
-    accuracy = (round((total_correct / i), 2) * 100)
-    print(k_neighbors, "Nearest Neighbors is", accuracy, "% accurate.")
+    accuracy = round((total_correct / i) * 100, 2)
+    print("Accuracy of "+str(k_neighbors)+" nearest neighbors is: ", str(accuracy) + "%")
+    return accuracy
 
 
 # Euclidean distance finder
@@ -147,7 +151,7 @@ def predict(k, train_images, train_labels, test_image):
 
 def increment_grow(k, train_images, train_labels):
     """
-    Reduce the size of the training data by using incremental growth
+    Reduce the size of the training data by using incremental growth, which is output to a text file.
 
     Parameters
     ----------
@@ -184,10 +188,14 @@ def increment_grow(k, train_images, train_labels):
             pruned_images.append(train_images[i])
             pruned_labels.append(train_labels[i])
 
+    zipped_items = str(list(map(list, zip(pruned_images, pruned_labels))))
+
+    # Write pruned labels to a text file
+    text_file = open("sample.txt", "w")
+    text_file.write(zipped_items)
+    text_file.close()
+
     print("Training elements before pruning: ", len(train_labels))
     print("Training elements after pruning: ", len(pruned_labels))
 
     return pruned_images, pruned_labels
-
-
-main(10, datasets.load_digits())
