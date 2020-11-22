@@ -15,16 +15,21 @@ def main(k_neighbors, dataset):
         The dataset to work with
 
     """
-    print(dataset.DESCR)
 
-    # The pixel matrices must be reduced to a 64 feature vector to use them.
-    dataset.images = dataset.images.reshape(dataset.images.shape[0],
-                                            dataset.images.shape[1] * dataset.images.shape[2])
+    # Show description of dataset
+    print(dataset.DESCR)
+    # View dimensions of data
+    print(dataset.images.shape)
+    print(dataset.target.shape)
+
+    # Reduce 1*64 images to feature vectors.
+    dataset.images = dataset.images.reshape(dataset.images.shape[0], dataset.images.shape[1] * dataset.images.shape[2])
 
     # Split dataset into training images and labels - (x_train, y_train) and testing images and labels (x_test, y_test)
     x_train, x_test, y_train, y_test = train_test_split(dataset.images, dataset.target, test_size=0.25)
 
     total_correct = 0
+    errors = []
     i = 0
     x_pruned, y_pruned = increment_grow(k_neighbors, x_train, y_train)
     print("----------------------\nCLASSIFYING TEST DIGITS...")
@@ -34,11 +39,15 @@ def main(k_neighbors, dataset):
 
         if prediction == y_test[i]:
             total_correct += 1
+        else:
+            errors.append(
+                {'Actual': y_test[i], 'Prediction': prediction})
 
         i += 1
 
     print("Correct classifications:", total_correct)
     print("Incorrect classifications:", len(x_test) - total_correct)
+    print(errors)
 
     accuracy = (round((total_correct / i), 2) * 100)
     print(k_neighbors, "Nearest Neighbors is", accuracy, "% accurate.")
