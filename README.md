@@ -24,6 +24,9 @@ Main is dependent on LibraryKNN and MyKNN.
 The project is dependent on NumPy, SciPy and SKLearn.
 
 As the code is running, you will be required to input:
+
 *The value of K
+
 *The percentage of the dataset to use as testing data
+
 *Whether to use incremental growth in MyKNN.
