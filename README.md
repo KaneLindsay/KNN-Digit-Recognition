@@ -8,13 +8,17 @@ E-mail: sgklinds@liverpool.ac.uk
 Files:
 
 Main: The main program. Starts LibraryKNN and MyKNN. Run this to begin.
+
 LibraryKNN: The SKLearn KNN implementation.
+
 MyKNN: My own KNN implementation.
+
 F3Model: A txt 'model' of the learning data after using incremental growth.
 
 * * * * * * * * * * *
 
 To start the program, run 'main'.
+
 Main is dependent on LibraryKNN and MyKNN.
 
 The project is dependent on NumPy, SciPy and SKLearn.
