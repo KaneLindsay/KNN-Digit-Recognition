@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 
 
-def main(k_neighbors, dataset):
+def main(k_neighbors, dataset, test_data_percent):
     """
     Predict a class for every test image and find the accuracy of the algorithm using k neighbours.
 
@@ -13,6 +13,8 @@ def main(k_neighbors, dataset):
         The number of neighbors to compare test images against
     dataset : array_like
         The dataset to work with
+    test_data_percent:
+        The percentage of data to use as test images
 
     """
 
@@ -20,22 +22,22 @@ def main(k_neighbors, dataset):
     dataset.images = dataset.images.reshape(dataset.images.shape[0], dataset.images.shape[1] * dataset.images.shape[2])
 
     # Split dataset into training images and labels - (x_train, y_train) and testing images and labels (x_test, y_test)
-    x_train, x_test, y_train, y_test = train_test_split(dataset.images, dataset.target, test_size=0.25)
-
-    total_correct = 0
-    errors = []
-    i = 0
+    x_train, x_test, y_train, y_test = train_test_split(dataset.images, dataset.target, test_size=test_data_percent/100)
 
     train_data = input("Train dataset with incremental growth? (Y/N):")
 
-    if train_data == "Y" or "y" or "yes" or "YES":
+    if train_data == "Y":
         x_train, y_train = increment_grow(k_neighbors, x_train, y_train)
-    elif train_data == "N" or "n" or "no" or "NO":
+    elif train_data == "N":
         pass
     else:
         print("Input was neither Y or N. Data will not be pruned.")
 
     print("----------------------\nCLASSIFYING TEST DIGITS...")
+
+    total_correct = 0
+    errors = []
+    i = 0
 
     for test_image in x_test:
         prediction = predict(k_neighbors, x_train, y_train, test_image)
@@ -53,7 +55,8 @@ def main(k_neighbors, dataset):
     print(errors)
 
     accuracy = round((total_correct / i) * 100, 2)
-    print("Accuracy of "+str(k_neighbors)+" nearest neighbors is: ", str(accuracy) + "%")
+    print("Accuracy of "+str(k_neighbors)+" nearest neighbors is: "+str(accuracy)+"%\n With", 100-test_data_percent,
+          "% training data and", test_data_percent, "% testing data.")
     return accuracy
 
 
@@ -81,7 +84,7 @@ def euclidean_distance(img_a, img_b):
 
 def find_best_fit(labels):
     """
-    Find the total number of each label and returns the most occurring label
+    Find the total number of each label and returns the most frequent
 
     Parameters
     ----------
@@ -191,7 +194,7 @@ def increment_grow(k, train_images, train_labels):
     zipped_items = str(list(map(list, zip(pruned_images, pruned_labels))))
 
     # Write pruned labels to a text file
-    text_file = open("sample.txt", "w")
+    text_file = open("F3Model.txt", "w")
     text_file.write(zipped_items)
     text_file.close()
 
