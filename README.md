@@ -1,9 +1,12 @@
 # KNN-Digit-Recognition
-Handwritten digit recognition with K-Nearest Neighbor algorithm.
+Handwritten digit recognition using the SKLearn 'digits' dataset with K-Nearest Neighbor algorithm.
 
 Author: Kane Lindsay
+
 Date: 22/11/2020
+
 E-mail: sgklinds@liverpool.ac.uk
+
 * * * * * * * * * * * 
 Files:
 
